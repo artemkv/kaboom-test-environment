@@ -1,0 +1,30 @@
+Vagrant.configure("2") do |config|
+  config.vm.provider "virtualbox" do |v|
+    v.memory = 2048
+    v.cpus = 1
+  end
+
+  config.vm.define "mongodb" do |mongodb|
+	mongodb.vm.hostname = "mongodb"
+    mongodb.vm.box = "ubuntu/bionic64"
+	mongodb.vm.network "private_network", ip: "192.168.60.50"
+	mongodb.vm.network "forwarded_port", guest: 27017, host: 27017
+	mongodb.vm.provision "shell", path: "mongodb/bootstrap.sh", run: "always"
+	mongodb.vm.provision "shell", path: "mongodb/create_db.sh", run: "always"
+  end
+  
+  config.vm.define "kafka" do |kafka|
+	kafka.vm.hostname = "kafka"
+    kafka.vm.box = "ubuntu/bionic64"
+	kafka.vm.network "private_network", ip: "192.168.60.51"
+	kafka.vm.network "forwarded_port", guest: 9092, host: 9092 # Kafka
+	kafka.vm.network "forwarded_port", guest: 2181, host: 2181 # Zookeeper
+	kafka.vm.provision "shell", path: "kafka/bootstrap.sh", run: "always"
+	kafka.vm.provision "shell", path: "kafka/create_topics.sh", run: "always"
+	
+	kafka.trigger.before "halt" do |trigger|
+		trigger.warn = "Shutting down Kafka/Zookeeper"
+		trigger.run_remote = {path: "kafka/shutdown.sh"}
+	end
+  end
+end

@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+echo VAGRANT BOOTSTRAP Waiting for Kafka to start...
+sleep 10s
+
+echo VAGRANT BOOTSTRAP Creating Kafka Launch Topic...
+/usr/local/bin/kafka/bin/kafka-topics.sh --create --if-not-exists --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic "launch_event"
+echo VAGRANT BOOTSTRAP Creating Kafka Crash Topic...
+/usr/local/bin/kafka/bin/kafka-topics.sh --create --if-not-exists --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic "crash_event"
