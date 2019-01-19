@@ -43,15 +43,15 @@ fi
 cd /usr/local/bin/kafka
 
 # Create our own folder for kafka logs
-if ! [ -d /vagrant/kafka/kafka-logs ]; then
-  mkdir /vagrant/kafka/kafka-logs
+if ! [ -d /vagrant/kafka2/kafka-logs ]; then
+  mkdir /vagrant/kafka2/kafka-logs
 fi
 
 # Point kafka logs to our folder
 # Usage: ln -sf /path/to/file /path/to/symlink
 if ! [ -L /usr/local/bin/kafka/logs ]; then
   rm -rf /usr/local/bin/kafka/logs
-  ln -fs /vagrant/kafka/kafka-logs /usr/local/bin/kafka/logs
+  ln -fs /vagrant/kafka2/kafka-logs /usr/local/bin/kafka/logs
 fi
 
 # Install kafkacat
@@ -59,7 +59,14 @@ sudo apt-get install -y librdkafka-dev libyajl-dev
 sudo apt-get install -y kafkacat
 
 # Copy kafka configuration
-cp /vagrant/kafka/server.properties /usr/local/bin/kafka/config/server.properties
+cp /vagrant/kafka2/server.properties /usr/local/bin/kafka/config/server.properties
+
+# Copy zookeeper configuration
+cp /vagrant/kafka2/zookeeper.properties /usr/local/bin/kafka/config/zookeeper.properties
+
+# Set up zookeeper id
+mkdir -p /tmp/zookeeper
+echo "3" > /tmp/zookeeper/myid
 
 # Start Zookeeper
 echo VAGRANT BOOTSTRAP Starting Zookeeper...

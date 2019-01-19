@@ -4,27 +4,48 @@ Vagrant.configure("2") do |config|
     v.cpus = 1
   end
 
-  config.vm.define "mongodb" do |mongodb|
-	mongodb.vm.hostname = "mongodb"
-    mongodb.vm.box = "ubuntu/bionic64"
-	mongodb.vm.network "private_network", ip: "192.168.60.50"
-	mongodb.vm.network "forwarded_port", guest: 27017, host: 27017
-	mongodb.vm.provision "shell", path: "mongodb/bootstrap.sh", run: "always"
-	mongodb.vm.provision "shell", path: "mongodb/create_db.sh", run: "always"
+#  config.vm.define "mongodb" do |mongodb|
+#	mongodb.vm.hostname = "mongodb"
+#    mongodb.vm.box = "ubuntu/bionic64"
+#	mongodb.vm.network "private_network", ip: "192.168.60.50"
+#	mongodb.vm.network "forwarded_port", guest: 27017, host: 27017
+#	mongodb.vm.provision "shell", path: "mongodb/bootstrap.sh", run: "always"
+#	mongodb.vm.provision "shell", path: "mongodb/create_db.sh", run: "always"
+#  end
+  
+  config.vm.define "server1" do |server1|
+	server1.vm.hostname = "server1"
+    server1.vm.box = "ubuntu/bionic64"
+	server1.vm.network "private_network", ip: "192.168.60.50"
+	server1.vm.network "forwarded_port", guest: 9092, host: 19092 # Kafka
+	server1.vm.network "forwarded_port", guest: 2181, host: 12181 # Zookeeper 1 client port
+	server1.vm.network "forwarded_port", guest: 2182, host: 12182 # Zookeeper 2 client port
+	server1.vm.network "forwarded_port", guest: 2888, host: 12888 # Zookeeper 1 port to connect to other peers
+	server1.vm.network "forwarded_port", guest: 2889, host: 12889 # Zookeeper 2 port to connect to other peers
+	server1.vm.network "forwarded_port", guest: 3888, host: 13888 # Zookeeper 1 port for leader election
+	server1.vm.network "forwarded_port", guest: 3889, host: 13889 # Zookeeper 2 port for leader election
+	server1.vm.provision "shell", path: "kafka1/bootstrap.sh", run: "always"
+	
+	server1.trigger.before "halt" do |trigger|
+		trigger.warn = "Shutting down Kafka/Zookeeper"
+		trigger.run_remote = {path: "kafka-common/shutdown.sh"}
+	end
   end
   
-  config.vm.define "kafka" do |kafka|
-	kafka.vm.hostname = "kafka"
-    kafka.vm.box = "ubuntu/bionic64"
-	kafka.vm.network "private_network", ip: "192.168.60.51"
-	kafka.vm.network "forwarded_port", guest: 9092, host: 9092 # Kafka
-	kafka.vm.network "forwarded_port", guest: 2181, host: 2181 # Zookeeper
-	kafka.vm.provision "shell", path: "kafka/bootstrap.sh", run: "always"
-	kafka.vm.provision "shell", path: "kafka/create_topics.sh", run: "always"
+  config.vm.define "server2" do |server2|
+	server2.vm.hostname = "server2"
+    server2.vm.box = "ubuntu/bionic64"
+	server2.vm.network "private_network", ip: "192.168.60.51"
+	server2.vm.network "forwarded_port", guest: 9092, host: 29092 # Kafka
+	server2.vm.network "forwarded_port", guest: 2181, host: 22181 # Zookeeper client port
+	server2.vm.network "forwarded_port", guest: 2888, host: 22888 # Zookeeper port to connect to other peers
+	server2.vm.network "forwarded_port", guest: 3888, host: 23888 # Zookeeper port for leader election
+	server2.vm.provision "shell", path: "kafka2/bootstrap.sh", run: "always"
+	server2.vm.provision "shell", path: "kafka-common/create_topics.sh", run: "always"
 	
-	kafka.trigger.before "halt" do |trigger|
+	server2.trigger.before "halt" do |trigger|
 		trigger.warn = "Shutting down Kafka/Zookeeper"
-		trigger.run_remote = {path: "kafka/shutdown.sh"}
+		trigger.run_remote = {path: "kafka-common/shutdown.sh"}
 	end
   end
 end

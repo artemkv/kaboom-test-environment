@@ -1,6 +1,8 @@
 .vagrant/
 
 mongodb/mongodb-log/
-kafka/kafka-logs/
+
+kafka1/kafka-logs/
+kafka2/kafka-logs/
 
 *.log
