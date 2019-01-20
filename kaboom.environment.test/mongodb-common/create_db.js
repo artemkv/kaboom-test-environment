@@ -1,4 +1,5 @@
-let db = connect("localhost:27017/kaboom");
+let conn = new Mongo('mongodb://192.168.60.50:27017,192.168.60.51:27017');
+let db = conn.getDB('kaboom');
 
 // Create index for users
 db.users.ensureIndex({"userId" : 1});

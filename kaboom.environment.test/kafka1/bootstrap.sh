@@ -85,4 +85,4 @@ bin/zookeeper-server-start.sh -daemon config/zookeeper2.properties
 echo VAGRANT BOOTSTRAP Starting Kafka...
 bin/kafka-server-start.sh -daemon config/server.properties
 
-echo VAGRANT BOOTSTRAP Done
+echo VAGRANT BOOTSTRAP Done with Kafka

@@ -23,23 +23,23 @@ echo "mongodb-org-tools hold" | sudo dpkg --set-selections
 
 # Create our own folder for mongo db logs
 # We cannot do the same for data directory, since mongodb does not support it
-if ! [ -d /vagrant/mongodb/mongodb-log ]; then
-  mkdir /vagrant/mongodb/mongodb-log
+if ! [ -d /vagrant/mongodb2/mongodb-log ]; then
+  mkdir /vagrant/mongodb2/mongodb-log
 fi
 
 # Point mongo db logs to our folder
 # Usage: ln -sf /path/to/file /path/to/symlink
 if ! [ -L /var/log/mongodb ]; then
   rm -rf /var/log/mongodb
-  ln -fs /vagrant/mongodb/mongodb-log /var/log/mongodb
+  ln -fs /vagrant/mongodb2/mongodb-log /var/log/mongodb
 fi
 
 # Copy mongodb configuration
-cp /vagrant/mongodb/mongod.conf /etc/mongod.conf
+cp /vagrant/mongodb-common/mongod.conf /etc/mongod.conf
 
 echo VAGRANT BOOTSTRAP Starting MongoDB...
 
 # Start MongoDB
 sudo service mongod start
 
-echo VAGRANT BOOTSTRAP Done
+echo VAGRANT BOOTSTRAP Done with MongoDB
